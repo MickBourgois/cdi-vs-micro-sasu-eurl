@@ -40,3 +40,14 @@ Feature: 01-cdi-vs-freelance
 
 ---
 
+## 2026-02-18 - US-001: Initialiser le projet Next.js avec TypeScript et Tailwind CSS
+- Projet Next.js 16.x créé avec App Router, TypeScript, Tailwind CSS, ESLint
+- Dossiers src/components/, src/lib/, src/types/ créés
+- page.tsx simplifié à un h1 "CDI vs Freelance", layout.tsx avec métadonnées fr
+- npm run build passe sans erreurs
+- **Learnings:**
+  - `create-next-app .` échoue si .claude/ existe → créer dans /tmp puis rsync --exclude='.git' --exclude='node_modules'
+  - next-env.d.ts est dans .gitignore par défaut, ne pas git add
+  - Next.js 16.x disponible avec Turbopack, compatible avec les critères "14+"
+---
+

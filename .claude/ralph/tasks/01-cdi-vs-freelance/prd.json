@@ -15,8 +15,8 @@
         "npm run dev démarre sans erreurs"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": "Utiliser: npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias '@/*'. Répondre Yes à toutes les questions par défaut. Ensuite créer les dossiers src/components/, src/lib/, src/types/ manuellement. Supprimer le contenu par défaut de page.tsx."
+      "passes": true,
+      "notes": "Créé via npx create-next-app dans /tmp puis rsync vers le répertoire projet (pour éviter le conflit .claude/). Dossiers src/components/, src/lib/, src/types/ créés manuellement. page.tsx remplacé par un h1 simple. build OK."
     },
     {
       "id": "US-002",
