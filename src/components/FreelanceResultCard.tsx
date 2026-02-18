@@ -91,7 +91,7 @@ function SasuCard({ results, inputs }: { results: SasuResults; inputs: Freelance
           <div className="space-y-0.5">
             <p className="text-xs text-gray-400 dark:text-gray-500 inline-flex items-center">
               Résultat avant IS
-              <Tooltip text="CA − salaire brut − charges patronales (45%)" />
+              <Tooltip text="CA − coût total SASU (salaire brut + charges patronales). Les charges salariales et le PAS sont des déductions sur le salaire du président : ils n'impactent pas ce résultat." />
             </p>
             <p className="font-semibold text-gray-600 dark:text-gray-400 tabular-nums text-sm">
               {fmt(results.resultatAvantIS)}
@@ -100,21 +100,49 @@ function SasuCard({ results, inputs }: { results: SasuResults; inputs: Freelance
         </div>
 
         {/* Salaire */}
-        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 p-3 space-y-1.5">
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 p-3 space-y-2.5">
           <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Rémunération</p>
-          <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-            <span>Salaire brut</span>
-            <span className="tabular-nums text-right">{fmt(results.salaireBrut)}</span>
-            <span>Charges salariales (22%)</span>
-            <span className="tabular-nums text-right text-red-400">−{fmt(results.chargesSalariales)}</span>
-            <span>Charges patronales (45%)</span>
-            <span className="tabular-nums text-right text-red-400">−{fmt(results.chargesPatronales)}</span>
-            <span>PAS (retenue à la source)</span>
-            <span className="tabular-nums text-right text-red-400">−{fmt(results.salaireNetAvantIR - results.salaireNetApresIR)}</span>
+
+          {/* Perspective SASU : ce qui réduit le résultat */}
+          <div className="space-y-1">
+            <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+              Coût pour la SASU
+              <Tooltip text="Ces montants sont déduits du CA pour calculer le résultat avant IS." />
+            </p>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+              <span>Salaire brut</span>
+              <span className="tabular-nums text-right">{fmt(results.salaireBrut)}</span>
+              <span>Charges patronales (45%)</span>
+              <span className="tabular-nums text-right text-red-400">+{fmt(results.chargesPatronales)}</span>
+            </div>
+            <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-1.5">
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">Coût total SASU</span>
+              <span className="text-[11px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">
+                {fmt(results.salaireBrut + results.chargesPatronales)}
+              </span>
+            </div>
           </div>
-          <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-2">
-            <span className="text-xs text-gray-600 dark:text-gray-300">Net après IR</span>
-            <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">{fmt(results.salaireNetApresIR)}</span>
+
+          <div className="border-t border-blue-200 dark:border-blue-800/60" />
+
+          {/* Perspective président : déductions sur le salaire brut */}
+          <div className="space-y-1">
+            <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+              Perçu par le président
+              <Tooltip text="Les charges salariales et le PAS sont prélevés sur le salaire brut. Ils ne coûtent rien de plus à la SASU." />
+            </p>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+              <span>Salaire brut</span>
+              <span className="tabular-nums text-right">{fmt(results.salaireBrut)}</span>
+              <span>− Charges salariales (22%)</span>
+              <span className="tabular-nums text-right text-red-400">−{fmt(results.chargesSalariales)}</span>
+              <span>− PAS (retenue à la source)</span>
+              <span className="tabular-nums text-right text-red-400">−{fmt(results.salaireNetAvantIR - results.salaireNetApresIR)}</span>
+            </div>
+            <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-1.5">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Net après IR</span>
+              <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">{fmt(results.salaireNetApresIR)}</span>
+            </div>
           </div>
         </div>
 
@@ -122,11 +150,13 @@ function SasuCard({ results, inputs }: { results: SasuResults; inputs: Freelance
         <div className="rounded-lg bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/50 p-3 space-y-1.5">
           <p className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">Dividendes</p>
           <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-            <span>Résultat net IS</span>
-            <span className="tabular-nums text-right">{fmt(results.resultatNetIS)}</span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">IS ({fmt(results.is)})</span>
-            <span className="tabular-nums text-right text-[10px] text-gray-400 dark:text-gray-500">15% / 25%</span>
-            <span>Flat tax (30%)</span>
+            <span>Résultat avant IS</span>
+            <span className="tabular-nums text-right">{fmt(results.resultatAvantIS)}</span>
+            <span>− IS (15% / 25%)</span>
+            <span className="tabular-nums text-right text-red-400">−{fmt(results.is)}</span>
+            <span className="font-medium text-gray-600 dark:text-gray-300">= Résultat net IS</span>
+            <span className="tabular-nums text-right font-medium text-gray-600 dark:text-gray-300">{fmt(results.resultatNetIS)}</span>
+            <span>− Flat tax dividendes (30%)</span>
             <span className="tabular-nums text-right text-red-400">−{fmt(results.flatTaxDividendes)}</span>
           </div>
           <div className="pt-1 border-t border-violet-100 dark:border-violet-900/50 grid grid-cols-2 gap-2">
@@ -182,21 +212,51 @@ function EurlCard({ results, inputs }: { results: EurlResults; inputs: Freelance
         </div>
 
         {/* Rémunération TNS */}
-        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 p-3 space-y-1.5">
-          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
-            Rémunération TNS
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-            <span>Rémunération brute</span>
-            <span className="tabular-nums text-right">{fmt(results.remuneration)}</span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">Assiette (×0,74)</span>
-            <span className="tabular-nums text-right text-[10px] text-gray-400 dark:text-gray-500">{fmt(results.assietteCotisations)}</span>
-            <span>Cotisations TNS (~45%)</span>
-            <span className="tabular-nums text-right text-red-400">−{fmt(results.cotisationsTNS)}</span>
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 p-3 space-y-2.5">
+          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Rémunération TNS</p>
+
+          {/* Perspective EURL : ce qui réduit le résultat */}
+          <div className="space-y-1">
+            <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+              Coût pour l'EURL
+              <Tooltip text="En EURL, la société ne paie que la rémunération brute. Il n'y a pas de charges patronales séparées : les cotisations TNS sont intégralement à la charge du gérant." />
+            </p>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+              <span>Rémunération brute</span>
+              <span className="tabular-nums text-right">{fmt(results.remuneration)}</span>
+            </div>
+            <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-1.5">
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">Coût total EURL</span>
+              <span className="text-[11px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">
+                {fmt(results.remuneration)}
+              </span>
+            </div>
           </div>
-          <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-2">
-            <span className="text-xs text-gray-600 dark:text-gray-300">Net après IR</span>
-            <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">{fmt(results.remunerationNetteApresIR)}</span>
+
+          <div className="border-t border-blue-200 dark:border-blue-800/60" />
+
+          {/* Perspective gérant : déductions sur la rémunération */}
+          <div className="space-y-1">
+            <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+              Perçu par le gérant
+              <Tooltip text={`Assiette cotisations = rémunération × 74% (abattement de 26%). Cotisations TNS ≈ 45% de l'assiette, soit ~33% du brut.`} />
+            </p>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+              <span>Rémunération brute</span>
+              <span className="tabular-nums text-right">{fmt(results.remuneration)}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">Assiette (×0,74)</span>
+              <span className="tabular-nums text-right text-[10px] text-gray-400 dark:text-gray-500">{fmt(results.assietteCotisations)}</span>
+              <span>− Cotisations TNS (~45%)</span>
+              <span className="tabular-nums text-right text-red-400">−{fmt(results.cotisationsTNS)}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">= Net avant PAS</span>
+              <span className="tabular-nums text-right font-medium text-gray-600 dark:text-gray-300">{fmt(results.remunerationNetteAvantIR)}</span>
+              <span>− PAS (retenue à la source)</span>
+              <span className="tabular-nums text-right text-red-400">−{fmt(results.remunerationNetteAvantIR - results.remunerationNetteApresIR)}</span>
+            </div>
+            <div className="pt-1 border-t border-blue-100 dark:border-blue-900/50 grid grid-cols-2 gap-1.5">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Net après IR</span>
+              <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 tabular-nums text-right">{fmt(results.remunerationNetteApresIR)}</span>
+            </div>
           </div>
         </div>
 
@@ -204,22 +264,24 @@ function EurlCard({ results, inputs }: { results: EurlResults; inputs: Freelance
         <div className="rounded-lg bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/50 p-3 space-y-1.5">
           <p className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide inline-flex items-center gap-1">
             Dividendes
-            <Tooltip text={`Seuil 10% (${fmt(results.seuilDividendes)}) : dividendes ≤ seuil → flat tax 30%. Dividendes > seuil → cotisations TNS (même assiette).`} />
+            <Tooltip text={`Seuil 10% du capital social (${fmt(results.seuilDividendes)}) : dividendes ≤ seuil → flat tax 30%. Dividendes > seuil → cotisations TNS (même assiette que la rémunération).`} />
           </p>
           <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-            <span>IS ({fmt(results.is)})</span>
-            <span className="tabular-nums text-right">15% / 25%</span>
-            <span>Résultat net IS</span>
-            <span className="tabular-nums text-right">{fmt(results.resultatNetIS)}</span>
+            <span>Résultat avant IS</span>
+            <span className="tabular-nums text-right">{fmt(results.resultatAvantIS)}</span>
+            <span>− IS (15% / 25%)</span>
+            <span className="tabular-nums text-right text-red-400">−{fmt(results.is)}</span>
+            <span className="font-medium text-gray-600 dark:text-gray-300">= Résultat net IS</span>
+            <span className="tabular-nums text-right font-medium text-gray-600 dark:text-gray-300">{fmt(results.resultatNetIS)}</span>
             {results.dividendesFlat > 0 && (
               <>
-                <span>Flat tax 30% sur {fmt(results.dividendesFlat)}</span>
+                <span>− Flat tax 30% sur {fmt(results.dividendesFlat)}</span>
                 <span className="tabular-nums text-right text-red-400">−{fmt(results.flatTaxDividendes)}</span>
               </>
             )}
             {hasDivAboveSeuil && (
               <>
-                <span>TNS sur excédent {fmt(results.dividendesSoumisRS)}</span>
+                <span>− Cotis. TNS sur excédent {fmt(results.dividendesSoumisRS)}</span>
                 <span className="tabular-nums text-right text-red-400">−{fmt(results.cotisationsTNSDividendes)}</span>
               </>
             )}
