@@ -170,8 +170,8 @@
         "npm run build passe sans erreurs"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": "Pour les tooltips, utiliser un composant simple avec group/hover Tailwind (pas besoin de librairie externe). Exemple: <div class='relative group'><span>?</span><div class='hidden group-hover:block absolute ...'>{texte}</div></div>. Pour le badge gagnant: conditionnel sur winner === 'cdi' ou 'freelance'."
+      "passes": true,
+      "notes": "Composant Tooltip.tsx créé (group/hover Tailwind, flèche CSS, z-10). CdiResultCard: bandeau bleu en header, état vide blue-50/blue-100, tooltips sur TJM équivalent et coût employeur. FreelanceResultCard: bandeau indigo, état vide indigo-50/indigo-100, tooltip sur cotisations AE. ComparisonPanel: badge gagnant avec trophée, break-even dans 2 cartes colorées (blue/indigo), tooltips sur TJM break-even et brut CDI équivalent. HomeContent: colonnes avec titres colorés (bullet + label), formulaires dans cartes bordées (blue/indigo), footer avec disclaimer et mention expert-comptable. Icône SVG lien dans bouton Copier. tabular-nums pour les montants (pas de flicker). npx tsc --noEmit et npm run build passent sans erreurs."
     }
   ]
 }

@@ -132,6 +132,20 @@ Feature: 01-cdi-vs-freelance
   - useState initialisé avec une fonction () => parse(searchParams) pour lire les params au premier rendu
 ---
 
+## 2026-02-18 - US-010: Design polish : couleurs, animations, tooltips et footer
+- Créé src/components/Tooltip.tsx : composant réutilisable avec group/hover Tailwind, flèche CSS, z-10
+- CdiResultCard.tsx : bandeau bleu en header de carte, état vide blue-50/blue-100, tooltips sur TJM équivalent et coût employeur, tabular-nums sur les montants
+- FreelanceResultCard.tsx : bandeau indigo, état vide indigo-50/indigo-100, tooltip sur cotisations AE 22%, tabular-nums
+- ComparisonPanel.tsx : badge gagnant avec icône trophée, 2 cartes break-even colorées (blue/indigo), tooltips sur TJM break-even et brut CDI équivalent
+- HomeContent.tsx : colonnes avec bullet coloré + label (CDI bleu / Freelance indigo), formulaires dans cartes bordées, footer disclaimer avec mention expert-comptable, icône SVG dans bouton Copier
+- **Learnings:**
+  - `tabular-nums` (Tailwind `tabular-nums`) évite le flicker/décalage des chiffres lors des changements de valeur
+  - Pour les tooltips Tailwind : `relative group` sur le parent, `opacity-0 group-hover:opacity-100 transition-opacity` sur le tooltip, `pointer-events-none` pour éviter les conflits de hover
+  - La flèche CSS du tooltip : `border-4 border-transparent border-t-{couleur}` positionné en `absolute top-full`
+  - L'apostrophe dans du JSX (l'expert) nécessite `&apos;` ou la notation JS `{'` pour éviter l'erreur ESLint `no-unescaped-entities`
+
+---
+
 ## 2026-02-18 - US-008: Assembler la page principale avec layout responsive
 - Mise à jour de src/app/page.tsx avec 'use client' et tous les composants assemblés
 - useState pour cdiInputs (brutAnnuel=0, statut='cadre') et freelanceInputs (tjm=0, joursAnnuel=218)

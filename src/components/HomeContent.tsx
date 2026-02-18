@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CdiForm from '@/components/CdiForm';
 import FreelanceForm from '@/components/FreelanceForm';
@@ -93,33 +93,50 @@ export default function HomeContent() {
       : null;
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 py-8 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-3xl font-bold text-gray-900">CDI vs Freelance</h1>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 max-w-xl mx-auto">
             Comparez votre revenu net en CDI et en auto-entrepreneur. Saisissez vos données pour obtenir une estimation instantanée.
           </p>
           <button
             onClick={handleCopyLink}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
             {copied ? 'Lien copié !' : 'Copier le lien'}
           </button>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Main content */}
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Colonne CDI */}
           <div className="space-y-4">
-            <CdiForm values={cdiInputs} onChange={handleCdiChange} />
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
+              <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wide">CDI — Salarié</h2>
+            </div>
+            <div className="rounded-xl border border-blue-100 bg-white shadow-sm p-5">
+              <CdiForm values={cdiInputs} onChange={handleCdiChange} />
+            </div>
             <CdiResultCard results={cdiResults} inputs={cdiInputs} />
           </div>
 
           {/* Colonne Freelance */}
           <div className="space-y-4">
-            <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
+              <h2 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">Freelance — Auto-Entrepreneur</h2>
+            </div>
+            <div className="rounded-xl border border-indigo-100 bg-white shadow-sm p-5">
+              <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
+            </div>
             <FreelanceResultCard results={freelanceResults} inputs={freelanceInputs} />
           </div>
         </div>
@@ -128,7 +145,15 @@ export default function HomeContent() {
         <div className="mt-8">
           <ComparisonPanel comparison={comparison} />
         </div>
-      </div>
-    </main>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-white mt-8 py-6 px-4">
+        <p className="text-center text-xs text-gray-400 max-w-2xl mx-auto">
+          Estimations indicatives basées sur le régime auto-entrepreneur (cotisations URSSAF 22%) et les charges salariales CDI standard. Les résultats ne tiennent pas compte de la mutuelle, des tickets restaurant, des RTT, de l&apos;intéressement, ni des spécificités conventionnelles.{' '}
+          <strong>Consultez un expert-comptable pour des calculs précis adaptés à votre situation.</strong>
+        </p>
+      </footer>
+    </div>
   );
 }

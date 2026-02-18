@@ -1,4 +1,5 @@
 import { ComparisonResults } from '@/types';
+import Tooltip from '@/components/Tooltip';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('fr-FR', {
@@ -14,7 +15,7 @@ interface Props {
 export default function ComparisonPanel({ comparison }: Props) {
   if (!comparison) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center text-gray-500">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-400">
         Remplissez les deux côtés pour comparer
       </div>
     );
@@ -29,45 +30,65 @@ export default function ComparisonPanel({ comparison }: Props) {
       ? 'Le Freelance est plus avantageux'
       : 'Équivalent';
 
-  const winnerColor =
+  const winnerBadge =
     winner === 'cdi'
-      ? 'text-blue-600'
+      ? 'bg-blue-100 text-blue-700 border border-blue-200'
       : winner === 'freelance'
-      ? 'text-indigo-600'
-      : 'text-gray-600';
+      ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+      : 'bg-gray-100 text-gray-600 border border-gray-200';
+
+  const winnerIcon =
+    winner === 'equal' ? '⚖️' : '🏆';
 
   const ecartLabel =
     winner === 'equal'
-      ? 'Aucun écart'
+      ? null
       : winner === 'cdi'
       ? `+${fmt(ecartAnnuel)}/an pour le CDI`
       : `+${fmt(ecartAnnuel)}/an pour le Freelance`;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-center text-lg font-semibold text-gray-700">Comparaison</h2>
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="bg-gray-50 border-b border-gray-100 px-6 py-3">
+        <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide text-center">Comparaison</h2>
+      </div>
 
-      <p className={`mb-1 text-center text-2xl font-bold ${winnerColor}`}>{winnerLabel}</p>
+      <div className="p-6">
+        {/* Verdict badge */}
+        <div className="flex justify-center mb-4">
+          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${winnerBadge}`}>
+            <span>{winnerIcon}</span>
+            {winnerLabel}
+          </span>
+        </div>
 
-      {winner !== 'equal' && (
-        <p className="mb-4 text-center text-sm text-gray-500">{ecartLabel}</p>
-      )}
+        {/* Écart */}
+        {winner !== 'equal' && ecartLabel && (
+          <div className="text-center mb-6">
+            <p className="text-2xl font-bold text-gray-900 tabular-nums">{ecartLabel}</p>
+            <p className="text-sm text-gray-400 mt-1">soit {ecartPourcentage.toFixed(1)}% de différence</p>
+          </div>
+        )}
 
-      {winner !== 'equal' && (
-        <p className="mb-6 text-center text-sm text-gray-500">
-          Écart : {ecartPourcentage.toFixed(1)}%
-        </p>
-      )}
-
-      <div className="space-y-3 border-t border-gray-100 pt-4 text-sm text-gray-600">
-        <p>
-          <span className="font-medium">TJM break-even :</span> Pour égaler le CDI, il faut un TJM
-          de <span className="font-semibold text-indigo-600">{fmt(tjmBreakEven)}/j</span>
-        </p>
-        <p>
-          <span className="font-medium">Brut CDI équivalent :</span> Ce TJM équivaut à un brut CDI
-          de <span className="font-semibold text-blue-600">{fmt(brutCdiBreakEven)}</span>
-        </p>
+        {/* Break-even */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+          <div className="bg-indigo-50 rounded-lg p-4">
+            <p className="text-xs text-indigo-500 font-medium mb-1 inline-flex items-center">
+              TJM break-even
+              <Tooltip text="Le TJM minimum que le freelance doit facturer pour obtenir le même revenu net que le CDI, après cotisations AE (22%)." />
+            </p>
+            <p className="text-xl font-bold text-indigo-700 tabular-nums">{fmt(tjmBreakEven)}/j</p>
+            <p className="text-xs text-indigo-400 mt-0.5">Pour égaler le revenu CDI</p>
+          </div>
+          <div className="bg-blue-50 rounded-lg p-4">
+            <p className="text-xs text-blue-500 font-medium mb-1 inline-flex items-center">
+              Brut CDI équivalent
+              <Tooltip text="Le salaire brut annuel CDI qui offrirait le même revenu net que ce TJM en auto-entrepreneur, pour le même nombre de jours travaillés." />
+            </p>
+            <p className="text-xl font-bold text-blue-700 tabular-nums">{fmt(brutCdiBreakEven)}</p>
+            <p className="text-xs text-blue-400 mt-0.5">Salaire brut équivalent</p>
+          </div>
+        </div>
       </div>
     </div>
   );
