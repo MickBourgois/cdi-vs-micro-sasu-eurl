@@ -153,8 +153,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": "Utiliser useSearchParams() et useRouter() de 'next/navigation' pour lire/écrire les params URL. router.replace() avec les nouveaux params. Envelopper dans Suspense si nécessaire pour useSearchParams. Le bouton peut utiliser navigator.clipboard.writeText(window.location.href)."
+      "passes": true,
+      "notes": "Logique extraite dans src/components/HomeContent.tsx ('use client') enveloppé dans <Suspense> depuis page.tsx. useSearchParams() lit les params au montage pour pré-remplir les états. useRouter().replace() mis à jour à chaque changement d'input sans rechargement. Bouton 'Copier le lien' dans l'en-tête avec feedback 'Lien copié !' pendant 2s. Params omis si valeur par défaut (jours=218, brut=0, tjm=0). npx tsc --noEmit et npm run build passent sans erreurs."
     },
     {
       "id": "US-010",

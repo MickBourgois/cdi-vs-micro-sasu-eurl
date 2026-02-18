@@ -118,6 +118,20 @@ Feature: 01-cdi-vs-freelance
   - npx tsc --noEmit passe sans erreurs
 ---
 
+## 2026-02-18 - US-009: Ajouter le partage par URL
+- Extrait la logique de page.tsx dans src/components/HomeContent.tsx avec 'use client'
+- page.tsx réduit à <Suspense fallback> + <HomeContent /> (requis pour useSearchParams en App Router)
+- parseCdiInputsFromParams() et parseFreelanceInputsFromParams() lisent les query params au montage
+- updateUrl() reconstruit les params et appelle router.replace() à chaque changement d'input
+- Bouton 'Copier le lien' dans l'en-tête, navigator.clipboard + feedback 'Lien copié !' 2s
+- Params URL: brut, statut, taux (si personnalisé), tjm, jours (omis si 218)
+- **Learnings:**
+  - useSearchParams() dans un client component App Router nécessite impérativement <Suspense> dans le parent pour npm run build
+  - Pattern propre: créer un composant *Content.tsx séparé et wrapper dans Suspense depuis page.tsx
+  - router.replace('/', { scroll: false }) quand aucun param (évite `?` vide dans l'URL)
+  - useState initialisé avec une fonction () => parse(searchParams) pour lire les params au premier rendu
+---
+
 ## 2026-02-18 - US-008: Assembler la page principale avec layout responsive
 - Mise à jour de src/app/page.tsx avec 'use client' et tous les composants assemblés
 - useState pour cdiInputs (brutAnnuel=0, statut='cadre') et freelanceInputs (tjm=0, joursAnnuel=218)
