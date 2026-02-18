@@ -104,3 +104,16 @@ Feature: 01-cdi-vs-freelance
   - Même pattern exact que CdiResultCard: vérifier `inputs.tjm === 0` en premier
   - caAnnuel toujours > 0 quand tjm > 0, donc division sûre pour cotisationsPct
 ---
+
+## 2026-02-18 - US-007: Créer le panneau de comparaison
+- Créé src/components/ComparisonPanel.tsx
+- Affiche état vide ("Remplissez les deux côtés pour comparer") si comparison === null
+- Verdict en grand texte coloré (text-blue-600 pour CDI, text-indigo-600 pour Freelance, text-gray-600 pour égalité)
+- Écart annuel formaté (ex: "+12 400 €/an pour le Freelance") et écart en pourcentage
+- TJM break-even et brut CDI break-even en section séparée
+- Props: { comparison: ComparisonResults | null }
+- **Learnings:**
+  - winner === 'equal' → masquer les champs d'écart (inutiles si égalité)
+  - Préfixe "+" sur l'écart car il est toujours positif (valeur absolue de la différence)
+  - npx tsc --noEmit passe sans erreurs
+---

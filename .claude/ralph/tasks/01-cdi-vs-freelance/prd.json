@@ -118,8 +118,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": "Le panneau est le composant central de l'appli. winner peut être 'cdi', 'freelance', ou 'equal'. Mettre en valeur le gagnant visuellement (texte plus grand, couleur)."
+      "passes": true,
+      "notes": "Composant ComparisonPanel créé. Affiche état vide si comparison === null. Verdict en grand texte coloré (bleu CDI, indigo Freelance). Écart annuel et pourcentage affichés. TJM break-even et brut CDI break-even en section séparée. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-008",
