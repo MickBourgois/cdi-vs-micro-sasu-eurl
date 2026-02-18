@@ -51,3 +51,15 @@ Feature: 01-cdi-vs-freelance
   - Next.js 16.x disponible avec Turbopack, compatible avec les critères "14+"
 ---
 
+## 2026-02-18 - US-002: Créer les types TypeScript et la bibliothèque de calculs
+- Créé src/types/index.ts avec interfaces CdiInputs, FreelanceInputs, CdiResults, FreelanceResults, ComparisonResults
+- Créé src/lib/calculations.ts avec calculateCdi(), calculateFreelance(), calculateComparison()
+- calculateCdi() prend joursAnnuel en param optionnel (défaut 218) pour calculer tjmEquivalent
+- calculateComparison() prend aussi cdiInputs + freelanceInputs pour accéder aux taux de charges et jours
+- CdiResults expose tauxChargesApplique pour affichage dans les cartes résultats
+- **Learnings:**
+  - La signature de calculateComparison() du PRD (2 args) ne suffit pas → il faut passer cdiInputs et freelanceInputs pour les formules break-even
+  - Utiliser `(inputs.tauxChargesPersonnalise ?? 22) / 100` pour éviter undefined avec le statut 'personnalise'
+  - npx tsc --noEmit est la commande de typecheck (pas pnpm tsc)
+---
+

@@ -36,8 +36,8 @@
         "TypeScript compile sans erreurs (npx tsc --noEmit)"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": "Fonctions pures, pas d'état React. Valeurs par défaut: tauxChargesSalariales = 0.22, joursAnnuel = 218. Formules: netAnnuel = brutAnnuel * (1 - tauxCharges), coutEmployeur = brutAnnuel * 1.42, netMensuel = netAnnuel / 12, caAnnuel = tjm * jours, cotisations = caAnnuel * 0.22, netAE = caAnnuel * 0.78."
+      "passes": true,
+      "notes": "Fonctions pures, pas d'état React. Valeurs par défaut: tauxChargesSalariales = 0.22, joursAnnuel = 218. Formules: netAnnuel = brutAnnuel * (1 - tauxCharges), coutEmployeur = brutAnnuel * 1.42, netMensuel = netAnnuel / 12, caAnnuel = tjm * jours, cotisations = caAnnuel * 0.22, netAE = caAnnuel * 0.78. calculateComparison prend aussi cdiInputs et freelanceInputs pour accéder aux taux. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-003",
