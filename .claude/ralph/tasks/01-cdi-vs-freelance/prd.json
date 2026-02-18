@@ -100,8 +100,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": "Même pattern que CdiResultCard. Cotisations = 22% du CA. Style Tailwind basique."
+      "passes": true,
+      "notes": "Composant FreelanceResultCard créé. Affiche état vide si tjm === 0. Formatage Intl.NumberFormat fr-FR. cotisationsPct calculé depuis results.cotisations / results.caAnnuel. Jours travaillés affiché depuis inputs.joursAnnuel. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-007",

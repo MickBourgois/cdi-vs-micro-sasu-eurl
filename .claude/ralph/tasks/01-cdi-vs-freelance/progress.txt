@@ -92,3 +92,15 @@ Feature: 01-cdi-vs-freelance
   - tauxChargesApplique est en décimal (0.25), multiplier par 100 pour affichage %
   - Vérifier à la fois `results === null` ET `brutAnnuel === 0` pour l'état vide
 ---
+
+## 2026-02-18 - US-006: Créer la carte de résultats Freelance AE
+- Créé src/components/FreelanceResultCard.tsx
+- Affiche état vide ("Saisissez un TJM") si tjm === 0 ou results null
+- Formatage Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+- cotisationsPct calculé depuis (results.cotisations / results.caAnnuel * 100).toFixed(0)
+- Jours travaillés affiché depuis inputs.joursAnnuel
+- Props: { results: FreelanceResults | null, inputs: FreelanceInputs }
+- **Learnings:**
+  - Même pattern exact que CdiResultCard: vérifier `inputs.tjm === 0` en premier
+  - caAnnuel toujours > 0 quand tjm > 0, donc division sûre pour cotisationsPct
+---
