@@ -52,8 +52,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": "Composant contrôlé (controlled component). Props: { onChange: (inputs: CdiInputs) => void, values?: CdiInputs }. Utiliser les types de src/types/index.ts. Style Tailwind basique pour ce ticket (le polish viendra dans US-010)."
+      "passes": true,
+      "notes": "Composant contrôlé (controlled component). Props: { onChange: (inputs: CdiInputs) => void, values?: CdiInputs }. Utiliser les types de src/types/index.ts. Style Tailwind basique pour ce ticket (le polish viendra dans US-010). Input numérique pour brut annuel avec placeholder '60 000', select statut (cadre/non-cadre/personnalisé), champ taux conditionnel si personnalisé. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-004",
@@ -68,8 +68,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": "Composant contrôlé. Props: { onChange: (inputs: FreelanceInputs) => void, values?: FreelanceInputs }. Utiliser les types de src/types/index.ts. Style Tailwind basique."
+      "passes": true,
+      "notes": "Composant contrôlé. Props: { onChange: (inputs: FreelanceInputs) => void, values?: FreelanceInputs }. Input TJM vide si 0 (placeholder '450'), input jours avec valeur par défaut 218. Texte d'aide sous le champ jours. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-005",
@@ -84,8 +84,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": "Utiliser Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }) pour formater les montants. Style Tailwind basique."
+      "passes": true,
+      "notes": "Composant CdiResultCard créé. Affiche état vide si brutAnnuel === 0. Formatage Intl.NumberFormat fr-FR. tauxLabel calculé depuis inputs.statut + tauxChargesApplique. npx tsc --noEmit passe sans erreurs."
     },
     {
       "id": "US-006",

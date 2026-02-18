@@ -63,3 +63,32 @@ Feature: 01-cdi-vs-freelance
   - npx tsc --noEmit est la commande de typecheck (pas pnpm tsc)
 ---
 
+## 2026-02-18 - US-003: Créer le formulaire CDI
+- Créé src/components/CdiForm.tsx (composant contrôlé)
+- Input numérique pour salaire brut annuel, select pour statut (cadre/non-cadre/personnalisé), input taux conditionnel
+- Props: { onChange: (inputs: CdiInputs) => void, values?: CdiInputs }
+- **Learnings:**
+  - brutDisplay vide si brutAnnuel === 0 pour éviter "0" dans le champ au départ
+  - `tauxChargesPersonnalise: undefined` lors du changement de statut pour reset propre
+---
+
+## 2026-02-18 - US-004: Créer le formulaire Freelance Auto-Entrepreneur
+- Créé src/components/FreelanceForm.tsx (composant contrôlé)
+- Input TJM (€/jour) avec placeholder '450', input jours travaillés/an avec valeur par défaut 218
+- Texte d'aide sous le champ jours expliquant les 218 jours standard
+- Props: { onChange: (inputs: FreelanceInputs) => void, values?: FreelanceInputs }
+- **Learnings:**
+  - Même pattern que CdiForm: tjm === 0 → champ vide (pas '0')
+  - joursAnnuel défaut 218 via `values?.joursAnnuel ?? 218`
+---
+
+## 2026-02-18 - US-005: Créer la carte de résultats CDI
+- Créé src/components/CdiResultCard.tsx
+- Affiche état vide ("Saisissez un salaire brut") si brutAnnuel === 0 ou results null
+- Formatage Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+- tauxLabel construit depuis inputs.statut (cadre/non-cadre/personnalisé) + tauxChargesApplique
+- Props: { results: CdiResults | null, inputs: CdiInputs }
+- **Learnings:**
+  - tauxChargesApplique est en décimal (0.25), multiplier par 100 pour affichage %
+  - Vérifier à la fois `results === null` ET `brutAnnuel === 0` pour l'état vide
+---
