@@ -7,6 +7,7 @@ import FreelanceForm from '@/components/FreelanceForm';
 import CdiResultCard from '@/components/CdiResultCard';
 import FreelanceResultCard from '@/components/FreelanceResultCard';
 import ComparisonPanel from '@/components/ComparisonPanel';
+import DarkModeToggle from '@/components/DarkModeToggle';
 import { calculateCdi, calculateFreelance, calculateComparison } from '@/lib/calculations';
 import type { CdiInputs, FreelanceInputs, CdiResults, FreelanceResults, ComparisonResults } from '@/types';
 
@@ -18,7 +19,8 @@ function parseCdiInputsFromParams(params: URLSearchParams): CdiInputs {
       ? statutRaw
       : 'cadre';
   const taux = params.get('taux') ? Number(params.get('taux')) : undefined;
-  return { brutAnnuel: brut, statut, tauxChargesPersonnalise: taux };
+  const pas = params.get('pas') ? Number(params.get('pas')) : 10;
+  return { brutAnnuel: brut, statut, tauxChargesPersonnalise: taux, tauxPrelevementSource: pas };
 }
 
 function parseFreelanceInputsFromParams(params: URLSearchParams): FreelanceInputs {
@@ -46,6 +48,9 @@ export default function HomeContent() {
       params.set('statut', newCdi.statut);
       if (newCdi.statut === 'personnalise' && newCdi.tauxChargesPersonnalise !== undefined) {
         params.set('taux', String(newCdi.tauxChargesPersonnalise));
+      }
+      if (newCdi.tauxPrelevementSource !== 10) {
+        params.set('pas', String(newCdi.tauxPrelevementSource));
       }
       if (newFreelance.tjm > 0) params.set('tjm', String(newFreelance.tjm));
       if (newFreelance.joursAnnuel !== 218) params.set('jours', String(newFreelance.joursAnnuel));
@@ -93,23 +98,28 @@ export default function HomeContent() {
       : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 py-8 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-3xl font-bold text-gray-900">CDI vs Freelance</h1>
-          <p className="mt-2 text-gray-500 max-w-xl mx-auto">
-            Comparez votre revenu net en CDI et en auto-entrepreneur. Saisissez vos données pour obtenir une estimation instantanée.
-          </p>
-          <button
-            onClick={handleCopyLink}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            {copied ? 'Lien copié !' : 'Copier le lien'}
-          </button>
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-8 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-end mb-3">
+            <DarkModeToggle />
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CDI vs Freelance</h1>
+            <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+              Comparez votre revenu net en CDI et en auto-entrepreneur. Saisissez vos données pour obtenir une estimation instantanée.
+            </p>
+            <button
+              onClick={handleCopyLink}
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-colors shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              {copied ? 'Lien copié !' : 'Copier le lien'}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -120,9 +130,9 @@ export default function HomeContent() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
-              <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wide">CDI — Salarié</h2>
+              <h2 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">CDI — Salarié</h2>
             </div>
-            <div className="rounded-xl border border-blue-100 bg-white shadow-sm p-5">
+            <div className="rounded-xl border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 shadow-sm p-5">
               <CdiForm values={cdiInputs} onChange={handleCdiChange} />
             </div>
             <CdiResultCard results={cdiResults} inputs={cdiInputs} />
@@ -132,9 +142,9 @@ export default function HomeContent() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
-              <h2 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">Freelance — Auto-Entrepreneur</h2>
+              <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Freelance — Auto-Entrepreneur</h2>
             </div>
-            <div className="rounded-xl border border-indigo-100 bg-white shadow-sm p-5">
+            <div className="rounded-xl border border-indigo-100 dark:border-indigo-900 bg-white dark:bg-gray-800 shadow-sm p-5">
               <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
             </div>
             <FreelanceResultCard results={freelanceResults} inputs={freelanceInputs} />
@@ -148,8 +158,8 @@ export default function HomeContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white mt-8 py-6 px-4">
-        <p className="text-center text-xs text-gray-400 max-w-2xl mx-auto">
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8 py-6 px-4">
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 max-w-2xl mx-auto">
           Estimations indicatives basées sur le régime auto-entrepreneur (cotisations URSSAF 22%) et les charges salariales CDI standard. Les résultats ne tiennent pas compte de la mutuelle, des tickets restaurant, des RTT, de l&apos;intéressement, ni des spécificités conventionnelles.{' '}
           <strong>Consultez un expert-comptable pour des calculs précis adaptés à votre situation.</strong>
         </p>
