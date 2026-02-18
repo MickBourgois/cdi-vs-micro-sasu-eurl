@@ -126,68 +126,94 @@ export default function HomeContent() {
       : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F8] dark:bg-[#080810]">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-8 px-4">
-        <div className="max-w-5xl mx-auto">
+      <header className="bg-white/90 dark:bg-[#0D0D18]/90 backdrop-blur-sm border-b border-gray-200/70 dark:border-white/5 py-7 px-4 sticky top-0 z-10">
+        <div className="max-w-[1900px] mx-auto">
           <div className="flex justify-end mb-3">
             <DarkModeToggle />
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CDI vs Freelance</h1>
-            <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Comparez votre revenu net en CDI et en indépendant (Micro-AE, SASU ou EURL). Saisissez vos données pour obtenir une estimation instantanée.
+            <h1 className="font-display text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-violet-400">
+              CDI vs Freelance
+            </h1>
+            <p className="mt-2.5 text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm leading-relaxed">
+              Comparez votre revenu net en CDI et en indépendant — Micro-AE, SASU ou EURL. Estimation instantanée, partage par lien.
             </p>
             <button
               onClick={handleCopyLink}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-colors shadow-sm"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              {copied ? 'Lien copié !' : 'Copier le lien'}
+              {copied ? '✓ Lien copié !' : 'Copier le lien'}
             </button>
           </div>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Colonne CDI */}
+      <main className="flex-1 max-w-[1900px] mx-auto w-full px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-6 items-start">
+
+          {/* Colonne gauche : CDI + Freelance */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
-              <h2 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">CDI — Salarié</h2>
+
+            {/* Section CDI */}
+            <div className="rounded-2xl overflow-hidden border border-blue-200/70 dark:border-blue-800/30 shadow-sm">
+              {/* Barre de couleur + titre */}
+              <div className="bg-blue-500 px-5 py-2.5 flex items-center gap-2.5">
+                <h2 className="font-display text-xs font-bold text-white uppercase tracking-widest">CDI — Salarié</h2>
+              </div>
+              {/* Contenu */}
+              <div className="bg-blue-50/40 dark:bg-blue-950/10 p-4">
+                <div className="grid grid-cols-2 gap-4 items-start">
+                  <div className="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-white dark:bg-[#0F0F1C] shadow-sm p-5">
+                    <CdiForm values={cdiInputs} onChange={handleCdiChange} />
+                  </div>
+                  <CdiResultCard results={cdiResults} inputs={cdiInputs} />
+                </div>
+              </div>
             </div>
-            <div className="rounded-xl border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 shadow-sm p-5">
-              <CdiForm values={cdiInputs} onChange={handleCdiChange} />
+
+            {/* Section Freelance */}
+            <div className="rounded-2xl overflow-hidden border border-indigo-200/70 dark:border-indigo-800/30 shadow-sm">
+              {/* Barre de couleur + titre */}
+              <div className="bg-indigo-500 px-5 py-2.5 flex items-center gap-2.5">
+                <h2 className="font-display text-xs font-bold text-white uppercase tracking-widest">Indépendant — Société</h2>
+              </div>
+              {/* Contenu */}
+              <div className="bg-indigo-50/40 dark:bg-indigo-950/10 p-4">
+                <div className="grid grid-cols-2 gap-4 items-start">
+                  <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#0F0F1C] shadow-sm p-5">
+                    <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
+                  </div>
+                  <FreelanceResultCard results={freelanceResults} inputs={freelanceInputs} />
+                </div>
+              </div>
             </div>
-            <CdiResultCard results={cdiResults} inputs={cdiInputs} />
+
           </div>
 
-          {/* Colonne Freelance */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
-              <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Indépendant — Société</h2>
+          {/* Colonne droite : comparaison */}
+          <div className="lg:sticky lg:top-6 rounded-2xl overflow-hidden border border-amber-200/70 dark:border-amber-800/30 shadow-sm">
+            {/* Barre de couleur + titre */}
+            <div className="bg-amber-500 px-5 py-2.5 flex items-center gap-2.5">
+              <h2 className="font-display text-xs font-bold text-white uppercase tracking-widest">Comparaison</h2>
             </div>
-            <div className="rounded-xl border border-indigo-100 dark:border-indigo-900 bg-white dark:bg-gray-800 shadow-sm p-5">
-              <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
+            {/* Contenu */}
+            <div className="bg-amber-50/40 dark:bg-amber-950/10 p-4">
+              <ComparisonPanel comparison={comparison} structure={freelanceInputs.structure} />
             </div>
-            <FreelanceResultCard results={freelanceResults} inputs={freelanceInputs} />
           </div>
-        </div>
 
-        {/* Panneau de comparaison */}
-        <div className="mt-8">
-          <ComparisonPanel comparison={comparison} structure={freelanceInputs.structure} />
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8 py-6 px-4">
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 max-w-2xl mx-auto">
+      <footer className="border-t border-gray-200/70 dark:border-white/5 bg-white/80 dark:bg-[#0D0D18]/80 mt-8 py-6 px-4">
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Estimations indicatives. Micro-AE : 28,56% (URSSAF 26,16% + CFP 0,20% + VL IR 2,20%). SASU : charges salariales 22%, patronales 45%, IS 15%/25%, flat tax dividendes 30%. EURL : cotisations TNS ~45% sur assiette (abatt. 26%), IS 15%/25%, seuil dividendes 10% du capital.{' '}
           Les résultats ne tiennent pas compte des frais professionnels, de la mutuelle, des RTT, ni des spécificités conventionnelles.{' '}
           <strong>Consultez un expert-comptable pour des calculs précis adaptés à votre situation.</strong>
