@@ -40,3 +40,121 @@ Feature: 01-cdi-vs-freelance
 
 ---
 
+## 2026-02-18 - US-001: Initialiser le projet Next.js avec TypeScript et Tailwind CSS
+- Projet Next.js 16.x créé avec App Router, TypeScript, Tailwind CSS, ESLint
+- Dossiers src/components/, src/lib/, src/types/ créés
+- page.tsx simplifié à un h1 "CDI vs Freelance", layout.tsx avec métadonnées fr
+- npm run build passe sans erreurs
+- **Learnings:**
+  - `create-next-app .` échoue si .claude/ existe → créer dans /tmp puis rsync --exclude='.git' --exclude='node_modules'
+  - next-env.d.ts est dans .gitignore par défaut, ne pas git add
+  - Next.js 16.x disponible avec Turbopack, compatible avec les critères "14+"
+---
+
+## 2026-02-18 - US-002: Créer les types TypeScript et la bibliothèque de calculs
+- Créé src/types/index.ts avec interfaces CdiInputs, FreelanceInputs, CdiResults, FreelanceResults, ComparisonResults
+- Créé src/lib/calculations.ts avec calculateCdi(), calculateFreelance(), calculateComparison()
+- calculateCdi() prend joursAnnuel en param optionnel (défaut 218) pour calculer tjmEquivalent
+- calculateComparison() prend aussi cdiInputs + freelanceInputs pour accéder aux taux de charges et jours
+- CdiResults expose tauxChargesApplique pour affichage dans les cartes résultats
+- **Learnings:**
+  - La signature de calculateComparison() du PRD (2 args) ne suffit pas → il faut passer cdiInputs et freelanceInputs pour les formules break-even
+  - Utiliser `(inputs.tauxChargesPersonnalise ?? 22) / 100` pour éviter undefined avec le statut 'personnalise'
+  - npx tsc --noEmit est la commande de typecheck (pas pnpm tsc)
+---
+
+## 2026-02-18 - US-003: Créer le formulaire CDI
+- Créé src/components/CdiForm.tsx (composant contrôlé)
+- Input numérique pour salaire brut annuel, select pour statut (cadre/non-cadre/personnalisé), input taux conditionnel
+- Props: { onChange: (inputs: CdiInputs) => void, values?: CdiInputs }
+- **Learnings:**
+  - brutDisplay vide si brutAnnuel === 0 pour éviter "0" dans le champ au départ
+  - `tauxChargesPersonnalise: undefined` lors du changement de statut pour reset propre
+---
+
+## 2026-02-18 - US-004: Créer le formulaire Freelance Auto-Entrepreneur
+- Créé src/components/FreelanceForm.tsx (composant contrôlé)
+- Input TJM (€/jour) avec placeholder '450', input jours travaillés/an avec valeur par défaut 218
+- Texte d'aide sous le champ jours expliquant les 218 jours standard
+- Props: { onChange: (inputs: FreelanceInputs) => void, values?: FreelanceInputs }
+- **Learnings:**
+  - Même pattern que CdiForm: tjm === 0 → champ vide (pas '0')
+  - joursAnnuel défaut 218 via `values?.joursAnnuel ?? 218`
+---
+
+## 2026-02-18 - US-005: Créer la carte de résultats CDI
+- Créé src/components/CdiResultCard.tsx
+- Affiche état vide ("Saisissez un salaire brut") si brutAnnuel === 0 ou results null
+- Formatage Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+- tauxLabel construit depuis inputs.statut (cadre/non-cadre/personnalisé) + tauxChargesApplique
+- Props: { results: CdiResults | null, inputs: CdiInputs }
+- **Learnings:**
+  - tauxChargesApplique est en décimal (0.25), multiplier par 100 pour affichage %
+  - Vérifier à la fois `results === null` ET `brutAnnuel === 0` pour l'état vide
+---
+
+## 2026-02-18 - US-006: Créer la carte de résultats Freelance AE
+- Créé src/components/FreelanceResultCard.tsx
+- Affiche état vide ("Saisissez un TJM") si tjm === 0 ou results null
+- Formatage Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+- cotisationsPct calculé depuis (results.cotisations / results.caAnnuel * 100).toFixed(0)
+- Jours travaillés affiché depuis inputs.joursAnnuel
+- Props: { results: FreelanceResults | null, inputs: FreelanceInputs }
+- **Learnings:**
+  - Même pattern exact que CdiResultCard: vérifier `inputs.tjm === 0` en premier
+  - caAnnuel toujours > 0 quand tjm > 0, donc division sûre pour cotisationsPct
+---
+
+## 2026-02-18 - US-007: Créer le panneau de comparaison
+- Créé src/components/ComparisonPanel.tsx
+- Affiche état vide ("Remplissez les deux côtés pour comparer") si comparison === null
+- Verdict en grand texte coloré (text-blue-600 pour CDI, text-indigo-600 pour Freelance, text-gray-600 pour égalité)
+- Écart annuel formaté (ex: "+12 400 €/an pour le Freelance") et écart en pourcentage
+- TJM break-even et brut CDI break-even en section séparée
+- Props: { comparison: ComparisonResults | null }
+- **Learnings:**
+  - winner === 'equal' → masquer les champs d'écart (inutiles si égalité)
+  - Préfixe "+" sur l'écart car il est toujours positif (valeur absolue de la différence)
+  - npx tsc --noEmit passe sans erreurs
+---
+
+## 2026-02-18 - US-009: Ajouter le partage par URL
+- Extrait la logique de page.tsx dans src/components/HomeContent.tsx avec 'use client'
+- page.tsx réduit à <Suspense fallback> + <HomeContent /> (requis pour useSearchParams en App Router)
+- parseCdiInputsFromParams() et parseFreelanceInputsFromParams() lisent les query params au montage
+- updateUrl() reconstruit les params et appelle router.replace() à chaque changement d'input
+- Bouton 'Copier le lien' dans l'en-tête, navigator.clipboard + feedback 'Lien copié !' 2s
+- Params URL: brut, statut, taux (si personnalisé), tjm, jours (omis si 218)
+- **Learnings:**
+  - useSearchParams() dans un client component App Router nécessite impérativement <Suspense> dans le parent pour npm run build
+  - Pattern propre: créer un composant *Content.tsx séparé et wrapper dans Suspense depuis page.tsx
+  - router.replace('/', { scroll: false }) quand aucun param (évite `?` vide dans l'URL)
+  - useState initialisé avec une fonction () => parse(searchParams) pour lire les params au premier rendu
+---
+
+## 2026-02-18 - US-010: Design polish : couleurs, animations, tooltips et footer
+- Créé src/components/Tooltip.tsx : composant réutilisable avec group/hover Tailwind, flèche CSS, z-10
+- CdiResultCard.tsx : bandeau bleu en header de carte, état vide blue-50/blue-100, tooltips sur TJM équivalent et coût employeur, tabular-nums sur les montants
+- FreelanceResultCard.tsx : bandeau indigo, état vide indigo-50/indigo-100, tooltip sur cotisations AE 22%, tabular-nums
+- ComparisonPanel.tsx : badge gagnant avec icône trophée, 2 cartes break-even colorées (blue/indigo), tooltips sur TJM break-even et brut CDI équivalent
+- HomeContent.tsx : colonnes avec bullet coloré + label (CDI bleu / Freelance indigo), formulaires dans cartes bordées, footer disclaimer avec mention expert-comptable, icône SVG dans bouton Copier
+- **Learnings:**
+  - `tabular-nums` (Tailwind `tabular-nums`) évite le flicker/décalage des chiffres lors des changements de valeur
+  - Pour les tooltips Tailwind : `relative group` sur le parent, `opacity-0 group-hover:opacity-100 transition-opacity` sur le tooltip, `pointer-events-none` pour éviter les conflits de hover
+  - La flèche CSS du tooltip : `border-4 border-transparent border-t-{couleur}` positionné en `absolute top-full`
+  - L'apostrophe dans du JSX (l'expert) nécessite `&apos;` ou la notation JS `{'` pour éviter l'erreur ESLint `no-unescaped-entities`
+
+---
+
+## 2026-02-18 - US-008: Assembler la page principale avec layout responsive
+- Mise à jour de src/app/page.tsx avec 'use client' et tous les composants assemblés
+- useState pour cdiInputs (brutAnnuel=0, statut='cadre') et freelanceInputs (tjm=0, joursAnnuel=218)
+- Calculs temps réel: cdiResults/freelanceResults null si inputs = 0, comparison null si l'un des deux null
+- Layout: grid md:grid-cols-2 gap-8 (2 colonnes desktop, empilées mobile)
+- Header centré avec titre h1 et sous-titre descriptif
+- ComparisonPanel dans un div mt-8 sous les colonnes
+- **Learnings:**
+  - calculateCdi() prend joursAnnuel en 2e arg → passer freelanceInputs.joursAnnuel pour cohérence entre les deux côtés
+  - Les résultats null quand inputs=0 évitent d'afficher des cartes vides (géré dans les composants enfants)
+  - npm run build et npx tsc --noEmit passent sans erreurs
+---
