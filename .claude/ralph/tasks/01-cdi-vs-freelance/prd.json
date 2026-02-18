@@ -1,0 +1,177 @@
+{
+  "branchName": "feat/01-cdi-vs-freelance",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Initialiser le projet Next.js avec TypeScript et Tailwind CSS",
+      "acceptanceCriteria": [
+        "Projet Next.js 14+ créé avec App Router dans /Users/mickaelbourgois/projet/apps/cdivsfreelance",
+        "TypeScript configuré (tsconfig.json présent)",
+        "Tailwind CSS configuré (tailwind.config.ts et globals.css)",
+        "Dossier src/ avec structure app/ et components/ et lib/ et types/",
+        "Page src/app/page.tsx avec placeholder simple (h1 'CDI vs Freelance')",
+        "Layout src/app/layout.tsx avec métadonnées de base",
+        "npm run build passe sans erreurs",
+        "npm run dev démarre sans erreurs"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Utiliser: npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias '@/*'. Répondre Yes à toutes les questions par défaut. Ensuite créer les dossiers src/components/, src/lib/, src/types/ manuellement. Supprimer le contenu par défaut de page.tsx."
+    },
+    {
+      "id": "US-002",
+      "title": "Créer les types TypeScript et la bibliothèque de calculs",
+      "acceptanceCriteria": [
+        "Fichier src/types/index.ts créé avec interfaces CdiInputs, FreelanceInputs, CdiResults, FreelanceResults, ComparisonResults",
+        "Fichier src/lib/calculations.ts créé avec fonctions calculateCdi() et calculateFreelance() et calculateComparison()",
+        "calculateCdi(brutAnnuel, tauxChargesSalariales): retourne netAnnuel, netMensuel, coutEmployeurAnnuel, tjmEquivalent",
+        "calculateFreelance(tjm, joursAnnuel): retourne caAnnuel, cotisations, netAnnuel, netMensuel",
+        "calculateComparison(cdiResults, freelanceResults): retourne winner, ecartAnnuel, ecartPourcentage, tjmBreakEven, brutCdiBreakEven",
+        "Charges salariales CDI cadre = 25%, non-cadre = 22%, personnalisé = taux fourni",
+        "Charges patronales CDI = 42% du brut (coût employeur = brut * 1.42)",
+        "Cotisations AE = 22% du CA",
+        "TJM équivalent CDI = coutEmployeur / joursAnnuel",
+        "TJM break-even = netCDI / (joursAnnuel * 0.78)",
+        "Brut CDI break-even = netAE / (1 - tauxChargesSalariales)",
+        "TypeScript compile sans erreurs (npx tsc --noEmit)"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Fonctions pures, pas d'état React. Valeurs par défaut: tauxChargesSalariales = 0.22, joursAnnuel = 218. Formules: netAnnuel = brutAnnuel * (1 - tauxCharges), coutEmployeur = brutAnnuel * 1.42, netMensuel = netAnnuel / 12, caAnnuel = tjm * jours, cotisations = caAnnuel * 0.22, netAE = caAnnuel * 0.78."
+    },
+    {
+      "id": "US-003",
+      "title": "Créer le formulaire CDI",
+      "acceptanceCriteria": [
+        "Composant src/components/CdiForm.tsx créé",
+        "Input numérique pour salaire brut annuel (€) avec placeholder '60 000'",
+        "Select pour statut : 'Cadre (25%)', 'Non-cadre (22%)', 'Personnalisé'",
+        "Si 'Personnalisé' sélectionné : input numérique pour le taux de charges (%) apparaît",
+        "Le composant expose les props: onChange(inputs: CdiInputs) => void, values?: CdiInputs",
+        "Labels clairs en français, formatage visuel des nombres avec séparateurs",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Composant contrôlé (controlled component). Props: { onChange: (inputs: CdiInputs) => void, values?: CdiInputs }. Utiliser les types de src/types/index.ts. Style Tailwind basique pour ce ticket (le polish viendra dans US-010)."
+    },
+    {
+      "id": "US-004",
+      "title": "Créer le formulaire Freelance Auto-Entrepreneur",
+      "acceptanceCriteria": [
+        "Composant src/components/FreelanceForm.tsx créé",
+        "Input numérique pour TJM (€/jour) avec placeholder '450'",
+        "Input numérique pour jours travaillés/an avec valeur par défaut 218",
+        "Texte d'aide sous le champ jours: '218 jours = standard convention collective française (52 sem. - 5 sem. congés - 11 jours fériés)'",
+        "Le composant expose les props: onChange(inputs: FreelanceInputs) => void, values?: FreelanceInputs",
+        "Labels clairs en français",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Composant contrôlé. Props: { onChange: (inputs: FreelanceInputs) => void, values?: FreelanceInputs }. Utiliser les types de src/types/index.ts. Style Tailwind basique."
+    },
+    {
+      "id": "US-005",
+      "title": "Créer la carte de résultats CDI",
+      "acceptanceCriteria": [
+        "Composant src/components/CdiResultCard.tsx créé",
+        "Affiche : Revenu net annuel (€), Revenu net mensuel (€), Coût total employeur/an (€), TJM équivalent mission (€/j)",
+        "Affiche le taux de charges appliqué (ex: '25% cadre')",
+        "Formatage français des montants (ex: '46 800 €')",
+        "Affiche 'Saisissez un salaire brut' si brutAnnuel = 0",
+        "Props: { results: CdiResults | null, inputs: CdiInputs }",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Utiliser Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }) pour formater les montants. Style Tailwind basique."
+    },
+    {
+      "id": "US-006",
+      "title": "Créer la carte de résultats Freelance AE",
+      "acceptanceCriteria": [
+        "Composant src/components/FreelanceResultCard.tsx créé",
+        "Affiche : CA annuel brut (€), Cotisations sociales (€ et %), Revenu net annuel (€), Revenu net mensuel (€)",
+        "Affiche le nombre de jours travaillés",
+        "Formatage français des montants",
+        "Affiche 'Saisissez un TJM' si tjm = 0",
+        "Props: { results: FreelanceResults | null, inputs: FreelanceInputs }",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Même pattern que CdiResultCard. Cotisations = 22% du CA. Style Tailwind basique."
+    },
+    {
+      "id": "US-007",
+      "title": "Créer le panneau de comparaison",
+      "acceptanceCriteria": [
+        "Composant src/components/ComparisonPanel.tsx créé",
+        "Affiche le verdict : 'Le CDI est plus avantageux' ou 'Le Freelance est plus avantageux' ou 'Équivalent'",
+        "Affiche l'écart annuel en euros (ex: '+12 400 €/an pour le Freelance')",
+        "Affiche l'écart en pourcentage",
+        "Affiche le TJM break-even (ex: 'Pour égaler le CDI, il faut un TJM de 385 €/j')",
+        "Affiche le brut CDI break-even (ex: 'Ce TJM équivaut à un brut CDI de 56 000 €')",
+        "Affiche 'Remplissez les deux côtés pour comparer' si un côté est vide",
+        "Props: { comparison: ComparisonResults | null }",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Le panneau est le composant central de l'appli. winner peut être 'cdi', 'freelance', ou 'equal'. Mettre en valeur le gagnant visuellement (texte plus grand, couleur)."
+    },
+    {
+      "id": "US-008",
+      "title": "Assembler la page principale avec layout responsive",
+      "acceptanceCriteria": [
+        "Page src/app/page.tsx mise à jour avec tous les composants assemblés",
+        "Layout desktop : 2 colonnes côte à côte (CDI à gauche, Freelance à droite)",
+        "Layout mobile : colonnes empilées verticalement",
+        "En-tête avec titre 'CDI vs Freelance' et sous-titre explicatif",
+        "Panneau de comparaison centré sous les deux colonnes",
+        "Calculs recalculés en temps réel à chaque modification des inputs",
+        "État géré dans la page (useState pour inputs CDI et Freelance)",
+        "Les calculs ne s'affichent que si les inputs sont valides (> 0)",
+        "npm run build passe sans erreurs",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Utiliser 'use client' en haut de page.tsx car on utilise useState. Importer CdiForm, FreelanceForm, CdiResultCard, FreelanceResultCard, ComparisonPanel. Appeler calculateCdi(), calculateFreelance(), calculateComparison() à chaque changement d'inputs. Grid Tailwind: md:grid-cols-2 gap-8."
+    },
+    {
+      "id": "US-009",
+      "title": "Ajouter le partage par URL",
+      "acceptanceCriteria": [
+        "Les inputs sont sérialisés dans les query params URL: ?brut=60000&statut=cadre&taux=25&tjm=450&jours=218",
+        "Au chargement de la page, les params URL pré-remplissent les formulaires",
+        "Bouton 'Copier le lien' visible dans le panneau de comparaison ou l'en-tête",
+        "Un clic sur le bouton copie l'URL courante dans le presse-papier",
+        "Feedback visuel après copie (texte change en 'Lien copié !' pendant 2 secondes)",
+        "Les params URL se mettent à jour automatiquement quand l'utilisateur modifie les inputs (sans rechargement de page)",
+        "TypeScript compile sans erreurs"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Utiliser useSearchParams() et useRouter() de 'next/navigation' pour lire/écrire les params URL. router.replace() avec les nouveaux params. Envelopper dans Suspense si nécessaire pour useSearchParams. Le bouton peut utiliser navigator.clipboard.writeText(window.location.href)."
+    },
+    {
+      "id": "US-010",
+      "title": "Design polish : couleurs, animations, tooltips et footer",
+      "acceptanceCriteria": [
+        "Colonne CDI visuellement distincte avec accent bleu (#3B82F6 ou similaire)",
+        "Colonne Freelance visuellement distincte avec accent violet/indigo (#6366F1 ou similaire)",
+        "Le gagnant dans le panneau de comparaison est mis en évidence (badge, bordure colorée, ou icône trophée)",
+        "Tooltips (icône ?) présents pour : TJM équivalent mission, Coût employeur, Cotisations AE 22%, TJM break-even",
+        "Footer avec disclaimer : 'Estimations indicatives. Consultez un expert-comptable pour des calculs précis.'",
+        "Transitions douces sur les valeurs qui changent (ou au minimum absence de flicker)",
+        "Design responsive vérifié sur mobile (375px) et desktop (1280px)",
+        "npm run build passe sans erreurs"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Pour les tooltips, utiliser un composant simple avec group/hover Tailwind (pas besoin de librairie externe). Exemple: <div class='relative group'><span>?</span><div class='hidden group-hover:block absolute ...'>{texte}</div></div>. Pour le badge gagnant: conditionnel sur winner === 'cdi' ou 'freelance'."
+    }
+  ]
+}

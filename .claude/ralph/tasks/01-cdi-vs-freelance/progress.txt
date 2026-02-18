@@ -1,0 +1,42 @@
+# Ralph Progress Log
+Started: 2026-02-18
+Feature: 01-cdi-vs-freelance
+
+## Codebase Patterns
+
+### Stack
+- Next.js 14+ App Router, TypeScript strict, Tailwind CSS
+- Client-side only (no backend, no DB)
+- Déploiement Vercel
+
+### Structure des fichiers à créer
+- src/types/index.ts → Interfaces TypeScript (CdiInputs, FreelanceInputs, CdiResults, FreelanceResults, ComparisonResults)
+- src/lib/calculations.ts → Fonctions pures de calcul
+- src/components/CdiForm.tsx → Formulaire inputs CDI
+- src/components/FreelanceForm.tsx → Formulaire inputs Freelance AE
+- src/components/CdiResultCard.tsx → Carte résultats CDI
+- src/components/FreelanceResultCard.tsx → Carte résultats Freelance AE
+- src/components/ComparisonPanel.tsx → Panneau de comparaison central
+- src/app/page.tsx → Page principale (remplace le placeholder)
+- src/app/layout.tsx → Layout avec métadonnées
+
+### Formules clés
+- CDI net annuel = brut × (1 - tauxCharges)   // tauxCharges: cadre=0.25, non-cadre=0.22
+- CDI coût employeur = brut × 1.42
+- CDI TJM équivalent = coutEmployeur / joursAnnuel
+- AE CA annuel = TJM × jours
+- AE cotisations = CA × 0.22
+- AE net annuel = CA × 0.78
+- TJM break-even = netCDI / (jours × 0.78)
+- Brut CDI break-even = netAE / (1 - tauxCharges)
+- Jours par défaut = 218
+
+### Patterns de code
+- Utiliser 'use client' pour les composants avec useState/useSearchParams
+- Formatage monétaire : Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+- Composants contrôlés avec props: { onChange: (inputs: T) => void, values?: T }
+- Tooltips avec group/hover Tailwind (pas de librairie externe)
+- URL sharing : useSearchParams() + useRouter().replace() de 'next/navigation'
+
+---
+
