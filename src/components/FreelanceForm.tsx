@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FreelanceInputs, SasuInputs, EurlInputs } from '@/types';
+import { useState, useEffect, useRef } from 'react';
+import { FreelanceInputs } from '@/types';
 
 interface FreelanceFormProps {
   onChange: (inputs: FreelanceInputs) => void;
@@ -25,7 +25,15 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
   const tjm = values?.tjm ?? 0;
   const joursAnnuel = values?.joursAnnuel ?? 218;
 
-  // Local display strings for numeric inputs (avoids "0" displayed when user clears)
+  // Persistent storage for per-structure values across tab switches
+  // useRef so they are never reset by re-renders or effects
+  const saved = useRef({
+    salaireBrutAnnuel: values?.structure === 'sasu' ? values.salaireBrutAnnuel : 0,
+    remunerationAnnuelle: values?.structure === 'eurl' ? values.remunerationAnnuelle : 0,
+    capitalSocial: values?.structure === 'eurl' ? values.capitalSocial : 1000,
+  });
+
+  // Display strings (what the user sees in the inputs)
   const [tjmDisplay, setTjmDisplay] = useState(numDisplay(tjm));
   const [joursDisplay, setJoursDisplay] = useState(numDisplay(joursAnnuel));
   const [salaireBrutDisplay, setSalaireBrutDisplay] = useState(
@@ -38,57 +46,53 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
     values?.structure === 'eurl' ? numDisplay(values.capitalSocial) : '1000'
   );
 
-  // Sync display strings when external values change
+  // Sync display strings when external values change (e.g. URL load)
   useEffect(() => {
     setTjmDisplay(numDisplay(tjm));
     setJoursDisplay(numDisplay(joursAnnuel));
     if (values?.structure === 'sasu') {
+      saved.current.salaireBrutAnnuel = values.salaireBrutAnnuel;
       setSalaireBrutDisplay(numDisplay(values.salaireBrutAnnuel));
     }
     if (values?.structure === 'eurl') {
+      saved.current.remunerationAnnuelle = values.remunerationAnnuelle;
+      saved.current.capitalSocial = values.capitalSocial;
       setRemunerationDisplay(numDisplay(values.remunerationAnnuelle));
       setCapitalDisplay(numDisplay(values.capitalSocial));
     }
   }, [values, tjm, joursAnnuel]);
 
-  function buildInputs(overrides: Partial<{ tjm: number; joursAnnuel: number; salaireBrutAnnuel: number; remunerationAnnuelle: number; capitalSocial: number }>): FreelanceInputs {
-    const t = overrides.tjm ?? tjm;
-    const j = overrides.joursAnnuel ?? joursAnnuel;
-
-    if (structure === 'sasu') {
-      const cur = values as SasuInputs | undefined;
-      return {
-        structure: 'sasu',
-        tjm: t,
-        joursAnnuel: j,
-        salaireBrutAnnuel: overrides.salaireBrutAnnuel ?? cur?.salaireBrutAnnuel ?? 0,
-      };
-    }
-    if (structure === 'eurl') {
-      const cur = values as EurlInputs | undefined;
-      return {
-        structure: 'eurl',
-        tjm: t,
-        joursAnnuel: j,
-        remunerationAnnuelle: overrides.remunerationAnnuelle ?? cur?.remunerationAnnuelle ?? 0,
-        capitalSocial: overrides.capitalSocial ?? cur?.capitalSocial ?? 1000,
-      };
-    }
-    return { structure: 'micro', tjm: t, joursAnnuel: j };
-  }
-
   function handleStructureChange(s: Structure) {
     if (s === structure) return;
-    // Keep tjm and joursAnnuel, reset structure-specific fields
+
     if (s === 'micro') {
       onChange({ structure: 'micro', tjm, joursAnnuel });
     } else if (s === 'sasu') {
-      setSalaireBrutDisplay('');
-      onChange({ structure: 'sasu', tjm, joursAnnuel, salaireBrutAnnuel: 0 });
+      // If returning to SASU with no saved value, carry over EURL remuneration (same concept)
+      if (saved.current.salaireBrutAnnuel === 0 && saved.current.remunerationAnnuelle > 0) {
+        saved.current.salaireBrutAnnuel = saved.current.remunerationAnnuelle;
+      }
+      setSalaireBrutDisplay(numDisplay(saved.current.salaireBrutAnnuel));
+      onChange({ structure: 'sasu', tjm, joursAnnuel, salaireBrutAnnuel: saved.current.salaireBrutAnnuel });
     } else {
-      setRemunerationDisplay('');
-      setCapitalDisplay('1000');
-      onChange({ structure: 'eurl', tjm, joursAnnuel, remunerationAnnuelle: 0, capitalSocial: 1000 });
+      // If switching to EURL with no saved value, carry over SASU salary (same concept)
+      if (saved.current.remunerationAnnuelle === 0 && saved.current.salaireBrutAnnuel > 0) {
+        saved.current.remunerationAnnuelle = saved.current.salaireBrutAnnuel;
+      }
+      setRemunerationDisplay(numDisplay(saved.current.remunerationAnnuelle));
+      setCapitalDisplay(numDisplay(saved.current.capitalSocial));
+      onChange({ structure: 'eurl', tjm, joursAnnuel, remunerationAnnuelle: saved.current.remunerationAnnuelle, capitalSocial: saved.current.capitalSocial });
+    }
+  }
+
+  function clampSalary(newCa: number) {
+    if (newCa > 0 && saved.current.salaireBrutAnnuel > newCa) {
+      saved.current.salaireBrutAnnuel = newCa;
+      setSalaireBrutDisplay(numDisplay(newCa));
+    }
+    if (newCa > 0 && saved.current.remunerationAnnuelle > newCa) {
+      saved.current.remunerationAnnuelle = newCa;
+      setRemunerationDisplay(numDisplay(newCa));
     }
   }
 
@@ -96,35 +100,66 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
     const raw = e.target.value;
     setTjmDisplay(raw);
     const val = parseFloat(raw);
-    onChange(buildInputs({ tjm: isNaN(val) ? 0 : val }));
+    const t = isNaN(val) ? 0 : val;
+    clampSalary(t * joursAnnuel);
+    if (structure === 'sasu') {
+      onChange({ structure: 'sasu', tjm: t, joursAnnuel, salaireBrutAnnuel: saved.current.salaireBrutAnnuel });
+    } else if (structure === 'eurl') {
+      onChange({ structure: 'eurl', tjm: t, joursAnnuel, remunerationAnnuelle: saved.current.remunerationAnnuelle, capitalSocial: saved.current.capitalSocial });
+    } else {
+      onChange({ structure: 'micro', tjm: t, joursAnnuel });
+    }
   }
 
   function handleJoursChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     setJoursDisplay(raw);
     const val = parseInt(raw, 10);
-    onChange(buildInputs({ joursAnnuel: isNaN(val) ? 0 : val }));
+    const j = isNaN(val) ? 0 : val;
+    clampSalary(tjm * j);
+    if (structure === 'sasu') {
+      onChange({ structure: 'sasu', tjm, joursAnnuel: j, salaireBrutAnnuel: saved.current.salaireBrutAnnuel });
+    } else if (structure === 'eurl') {
+      onChange({ structure: 'eurl', tjm, joursAnnuel: j, remunerationAnnuelle: saved.current.remunerationAnnuelle, capitalSocial: saved.current.capitalSocial });
+    } else {
+      onChange({ structure: 'micro', tjm, joursAnnuel: j });
+    }
   }
 
   function handleSalaireBrutChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
-    setSalaireBrutDisplay(raw);
     const val = parseFloat(raw);
-    onChange(buildInputs({ salaireBrutAnnuel: isNaN(val) ? 0 : val }));
+    if (isNaN(val)) {
+      setSalaireBrutDisplay(raw);
+      saved.current.salaireBrutAnnuel = 0;
+    } else {
+      const capped = caEstime > 0 ? Math.min(val, caEstime) : val;
+      setSalaireBrutDisplay(numDisplay(capped));
+      saved.current.salaireBrutAnnuel = capped;
+    }
+    onChange({ structure: 'sasu', tjm, joursAnnuel, salaireBrutAnnuel: saved.current.salaireBrutAnnuel });
   }
 
   function handleRemunerationChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
-    setRemunerationDisplay(raw);
     const val = parseFloat(raw);
-    onChange(buildInputs({ remunerationAnnuelle: isNaN(val) ? 0 : val }));
+    if (isNaN(val)) {
+      setRemunerationDisplay(raw);
+      saved.current.remunerationAnnuelle = 0;
+    } else {
+      const capped = caEstime > 0 ? Math.min(val, caEstime) : val;
+      setRemunerationDisplay(numDisplay(capped));
+      saved.current.remunerationAnnuelle = capped;
+    }
+    onChange({ structure: 'eurl', tjm, joursAnnuel, remunerationAnnuelle: saved.current.remunerationAnnuelle, capitalSocial: saved.current.capitalSocial });
   }
 
   function handleCapitalChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     setCapitalDisplay(raw);
     const val = parseFloat(raw);
-    onChange(buildInputs({ capitalSocial: isNaN(val) ? 0 : val }));
+    saved.current.capitalSocial = isNaN(val) ? 0 : val;
+    onChange({ structure: 'eurl', tjm, joursAnnuel, remunerationAnnuelle: saved.current.remunerationAnnuelle, capitalSocial: saved.current.capitalSocial });
   }
 
   const caEstime = tjm * joursAnnuel;
@@ -206,13 +241,16 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
             type="number"
             inputMode="numeric"
             min={0}
+            max={caEstime > 0 ? caEstime : undefined}
             placeholder="60 000"
             value={salaireBrutDisplay}
             onChange={handleSalaireBrutChange}
             className={inputClass}
           />
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-            Rémunération brute versée au président (peut être 0)
+            {caEstime > 0
+              ? `Plafonné au CA annuel (${caEstime.toLocaleString('fr-FR')} €). Peut être 0.`
+              : 'Rémunération brute versée au président (peut être 0)'}
           </p>
         </div>
       )}
@@ -229,13 +267,16 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
               type="number"
               inputMode="numeric"
               min={0}
+              max={caEstime > 0 ? caEstime : undefined}
               placeholder="60 000"
               value={remunerationDisplay}
               onChange={handleRemunerationChange}
               className={inputClass}
             />
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-              Rémunération brute versée au gérant TNS (peut être 0)
+              {caEstime > 0
+                ? `Plafonné au CA annuel (${caEstime.toLocaleString('fr-FR')} €). Peut être 0.`
+                : 'Rémunération brute versée au gérant TNS (peut être 0)'}
             </p>
           </div>
 

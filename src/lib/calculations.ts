@@ -113,7 +113,7 @@ export function calculateMicro(inputs: MicroInputs): MicroResults {
 export function calculateSasu(inputs: SasuInputs, tauxPas: number = 10): SasuResults {
   const tauxPAS = tauxPas / 100;
   const caAnnuel = inputs.tjm * inputs.joursAnnuel;
-  const salaireBrut = inputs.salaireBrutAnnuel;
+  const salaireBrut = Math.min(inputs.salaireBrutAnnuel, caAnnuel);
 
   const chargesSalariales = salaireBrut * TAUX_CHARGES_SAL_SASU;
   const chargesPatronales = salaireBrut * TAUX_CHARGES_PAT_SASU;
@@ -154,7 +154,7 @@ export function calculateSasu(inputs: SasuInputs, tauxPas: number = 10): SasuRes
 export function calculateEurl(inputs: EurlInputs, tauxPas: number = 10): EurlResults {
   const tauxPAS = tauxPas / 100;
   const caAnnuel = inputs.tjm * inputs.joursAnnuel;
-  const remuneration = inputs.remunerationAnnuelle;
+  const remuneration = Math.min(inputs.remunerationAnnuelle, caAnnuel);
 
   const assietteCotisations = remuneration * (1 - ABATTEMENT_EURL);
   const cotisationsTNS = assietteCotisations * TAUX_TNS_EURL;
