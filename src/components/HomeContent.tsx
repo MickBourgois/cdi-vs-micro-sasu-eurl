@@ -26,7 +26,26 @@ function parseCdiInputsFromParams(params: URLSearchParams): CdiInputs {
 function parseFreelanceInputsFromParams(params: URLSearchParams): FreelanceInputs {
   const tjm = Number(params.get('tjm')) || 0;
   const jours = Number(params.get('jours')) || 218;
-  return { tjm, joursAnnuel: jours };
+  const structureRaw = params.get('structure');
+
+  if (structureRaw === 'sasu') {
+    return {
+      structure: 'sasu',
+      tjm,
+      joursAnnuel: jours,
+      salaireBrutAnnuel: Number(params.get('salaire')) || 0,
+    };
+  }
+  if (structureRaw === 'eurl') {
+    return {
+      structure: 'eurl',
+      tjm,
+      joursAnnuel: jours,
+      remunerationAnnuelle: Number(params.get('remu')) || 0,
+      capitalSocial: Number(params.get('capital')) || 1000,
+    };
+  }
+  return { structure: 'micro', tjm, joursAnnuel: jours };
 }
 
 export default function HomeContent() {
@@ -54,6 +73,15 @@ export default function HomeContent() {
       }
       if (newFreelance.tjm > 0) params.set('tjm', String(newFreelance.tjm));
       if (newFreelance.joursAnnuel !== 218) params.set('jours', String(newFreelance.joursAnnuel));
+      if (newFreelance.structure !== 'micro') params.set('structure', newFreelance.structure);
+
+      if (newFreelance.structure === 'sasu' && newFreelance.salaireBrutAnnuel > 0) {
+        params.set('salaire', String(newFreelance.salaireBrutAnnuel));
+      }
+      if (newFreelance.structure === 'eurl') {
+        if (newFreelance.remunerationAnnuelle > 0) params.set('remu', String(newFreelance.remunerationAnnuelle));
+        if (newFreelance.capitalSocial !== 1000) params.set('capital', String(newFreelance.capitalSocial));
+      }
 
       const query = params.toString();
       router.replace(query ? `?${query}` : '/', { scroll: false });
@@ -89,7 +117,7 @@ export default function HomeContent() {
     : null;
 
   const freelanceResults: FreelanceResults | null = freelanceInputs.tjm > 0
-    ? calculateFreelance(freelanceInputs)
+    ? calculateFreelance(freelanceInputs, cdiInputs.tauxPrelevementSource)
     : null;
 
   const comparison: ComparisonResults | null =
@@ -108,7 +136,7 @@ export default function HomeContent() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CDI vs Freelance</h1>
             <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Comparez votre revenu net en CDI et en auto-entrepreneur. Saisissez vos données pour obtenir une estimation instantanée.
+              Comparez votre revenu net en CDI et en indépendant (Micro-AE, SASU ou EURL). Saisissez vos données pour obtenir une estimation instantanée.
             </p>
             <button
               onClick={handleCopyLink}
@@ -142,7 +170,7 @@ export default function HomeContent() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
-              <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Freelance — Auto-Entrepreneur</h2>
+              <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Indépendant — Société</h2>
             </div>
             <div className="rounded-xl border border-indigo-100 dark:border-indigo-900 bg-white dark:bg-gray-800 shadow-sm p-5">
               <FreelanceForm values={freelanceInputs} onChange={handleFreelanceChange} />
@@ -153,14 +181,15 @@ export default function HomeContent() {
 
         {/* Panneau de comparaison */}
         <div className="mt-8">
-          <ComparisonPanel comparison={comparison} />
+          <ComparisonPanel comparison={comparison} structure={freelanceInputs.structure} />
         </div>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8 py-6 px-4">
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 max-w-2xl mx-auto">
-          Estimations indicatives basées sur le régime auto-entrepreneur (cotisations URSSAF 22%) et les charges salariales CDI standard. Les résultats ne tiennent pas compte de la mutuelle, des tickets restaurant, des RTT, de l&apos;intéressement, ni des spécificités conventionnelles.{' '}
+          Estimations indicatives. Micro-AE : 28,56% (URSSAF 26,16% + CFP 0,20% + VL IR 2,20%). SASU : charges salariales 22%, patronales 45%, IS 15%/25%, flat tax dividendes 30%. EURL : cotisations TNS ~45% sur assiette (abatt. 26%), IS 15%/25%, seuil dividendes 10% du capital.{' '}
+          Les résultats ne tiennent pas compte des frais professionnels, de la mutuelle, des RTT, ni des spécificités conventionnelles.{' '}
           <strong>Consultez un expert-comptable pour des calculs précis adaptés à votre situation.</strong>
         </p>
       </footer>
