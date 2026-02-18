@@ -117,3 +117,16 @@ Feature: 01-cdi-vs-freelance
   - Préfixe "+" sur l'écart car il est toujours positif (valeur absolue de la différence)
   - npx tsc --noEmit passe sans erreurs
 ---
+
+## 2026-02-18 - US-008: Assembler la page principale avec layout responsive
+- Mise à jour de src/app/page.tsx avec 'use client' et tous les composants assemblés
+- useState pour cdiInputs (brutAnnuel=0, statut='cadre') et freelanceInputs (tjm=0, joursAnnuel=218)
+- Calculs temps réel: cdiResults/freelanceResults null si inputs = 0, comparison null si l'un des deux null
+- Layout: grid md:grid-cols-2 gap-8 (2 colonnes desktop, empilées mobile)
+- Header centré avec titre h1 et sous-titre descriptif
+- ComparisonPanel dans un div mt-8 sous les colonnes
+- **Learnings:**
+  - calculateCdi() prend joursAnnuel en 2e arg → passer freelanceInputs.joursAnnuel pour cohérence entre les deux côtés
+  - Les résultats null quand inputs=0 évitent d'afficher des cartes vides (géré dans les composants enfants)
+  - npm run build et npx tsc --noEmit passent sans erreurs
+---

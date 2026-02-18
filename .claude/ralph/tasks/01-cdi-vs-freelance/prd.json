@@ -137,8 +137,8 @@
         "TypeScript compile sans erreurs"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": "Utiliser 'use client' en haut de page.tsx car on utilise useState. Importer CdiForm, FreelanceForm, CdiResultCard, FreelanceResultCard, ComparisonPanel. Appeler calculateCdi(), calculateFreelance(), calculateComparison() à chaque changement d'inputs. Grid Tailwind: md:grid-cols-2 gap-8."
+      "passes": true,
+      "notes": "'use client' en haut de page.tsx. useState pour cdiInputs (défaut: brutAnnuel=0, statut='cadre') et freelanceInputs (défaut: tjm=0, joursAnnuel=218). cdiResults et freelanceResults calculés en temps réel avec null si inputs invalides (> 0). comparison null si l'un des deux est null. Grid md:grid-cols-2 gap-8, colonnes empilées sur mobile. Header avec titre et sous-titre. ComparisonPanel centré sous les colonnes. npx tsc --noEmit et npm run build passent sans erreurs."
     },
     {
       "id": "US-009",
