@@ -86,9 +86,10 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
   }
 
   function clampSalary(newCa: number) {
-    if (newCa > 0 && saved.current.salaireBrutAnnuel > newCa) {
-      saved.current.salaireBrutAnnuel = newCa;
-      setSalaireBrutDisplay(numDisplay(newCa));
+    const newMaxSasu = newCa > 0 ? Math.floor(newCa / 1.45) : 0;
+    if (newMaxSasu > 0 && saved.current.salaireBrutAnnuel > newMaxSasu) {
+      saved.current.salaireBrutAnnuel = newMaxSasu;
+      setSalaireBrutDisplay(numDisplay(newMaxSasu));
     }
     if (newCa > 0 && saved.current.remunerationAnnuelle > newCa) {
       saved.current.remunerationAnnuelle = newCa;
@@ -133,7 +134,7 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
       setSalaireBrutDisplay(raw);
       saved.current.salaireBrutAnnuel = 0;
     } else {
-      const capped = caEstime > 0 ? Math.min(val, caEstime) : val;
+      const capped = maxSalaireSasu > 0 ? Math.min(val, maxSalaireSasu) : val;
       setSalaireBrutDisplay(numDisplay(capped));
       saved.current.salaireBrutAnnuel = capped;
     }
@@ -163,6 +164,9 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
   }
 
   const caEstime = tjm * joursAnnuel;
+  // Max salary SASU: salaireBrut + chargesPatronales (45%) ≤ CA
+  // salaireBrut ≤ CA / 1.45
+  const maxSalaireSasu = caEstime > 0 ? Math.floor(caEstime / 1.45) : 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -241,15 +245,15 @@ export default function FreelanceForm({ onChange, values }: FreelanceFormProps) 
             type="number"
             inputMode="numeric"
             min={0}
-            max={caEstime > 0 ? caEstime : undefined}
+            max={maxSalaireSasu > 0 ? maxSalaireSasu : undefined}
             placeholder="60 000"
             value={salaireBrutDisplay}
             onChange={handleSalaireBrutChange}
             className={inputClass}
           />
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-            {caEstime > 0
-              ? `Plafonné au CA annuel (${caEstime.toLocaleString('fr-FR')} €). Peut être 0.`
+            {maxSalaireSasu > 0
+              ? `Max ${maxSalaireSasu.toLocaleString('fr-FR')} € — au-delà, les charges patronales (45%) dépassent le CA.`
               : 'Rémunération brute versée au président (peut être 0)'}
           </p>
         </div>
