@@ -49,7 +49,7 @@ export default function CdiResultCard({ results, inputs }: CdiResultCardProps) {
       </div>
 
       {/* Secondary breakdown */}
-      <div className="p-4 grid grid-cols-2 gap-3">
+      <div className="p-4 grid grid-cols-3 gap-3">
         <div className="space-y-0.5">
           <p className="text-xs text-gray-400 dark:text-gray-500">Net avant IR</p>
           <p className="font-mono font-semibold text-gray-600 dark:text-gray-400 tabular-nums text-sm">{formatCurrency(results.netAvantIR)}</p>
@@ -64,13 +64,13 @@ export default function CdiResultCard({ results, inputs }: CdiResultCardProps) {
           </p>
           <p className="font-mono font-semibold text-gray-600 dark:text-gray-400 tabular-nums text-sm">{formatCurrency(results.coutEmployeurAnnuel)}</p>
         </div>
-        <div className="col-span-2 pt-3 border-t border-gray-100 dark:border-white/5 space-y-0.5">
+        <div className="space-y-0.5">
           <p className="text-xs text-gray-400 dark:text-gray-500 inline-flex items-center">
-            TJM équivalent mission
+            TJM équivalent
             <Tooltip text="Le TJM qu'un freelance devrait facturer pour que son coût soit identique à celui de votre poste CDI (coût employeur ÷ jours travaillés)." />
           </p>
-          <p className="font-mono font-bold text-blue-600 dark:text-blue-400 tabular-nums text-lg">
-            {formatCurrency(results.tjmEquivalent)}<span className="text-sm font-normal">/j</span>
+          <p className="font-mono font-bold text-blue-600 dark:text-blue-400 tabular-nums text-sm">
+            {formatCurrency(results.tjmEquivalent)}<span className="font-normal">/j</span>
           </p>
         </div>
       </div>
