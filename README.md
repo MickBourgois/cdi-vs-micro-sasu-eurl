@@ -4,6 +4,8 @@ A client-side financial calculator that helps French workers compare a **CDI (pe
 
 All calculations run entirely in the browser — no backend, no data sent anywhere.
 
+![CDI vs Freelance Simulator](public/screenshot.png)
+
 ## What it does
 
 Enter your gross salary (CDI) and your daily rate (TJM), and the simulator computes:
